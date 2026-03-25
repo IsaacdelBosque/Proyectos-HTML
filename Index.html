@@ -5,23 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Mafer · Álbum de Recuerdos</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap');
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       background-color: #0a0a0c;
-      touch-action: manipulation;
       color: #e8e6e3;
+      touch-action: manipulation;
     }
-    
-    /* Fondo con estrellas sutiles */
     .stars-background {
       position: fixed;
       top: 0;
@@ -32,7 +26,6 @@
       z-index: 0;
       background: radial-gradient(ellipse at 40% 50%, #111113 0%, #050507 100%);
     }
-    
     .star {
       position: absolute;
       background-color: #c0c0c0;
@@ -40,52 +33,29 @@
       opacity: 0.4;
       animation: starGlow 3s infinite alternate;
     }
-    
     @keyframes starGlow {
       0% { opacity: 0.2; transform: scale(0.8); }
       100% { opacity: 0.7; transform: scale(1.1); }
     }
-    
-    /* Animaciones suaves de entrada */
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    
     @keyframes heartbeat {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.08); }
     }
-    
-    .animate-fade-up {
-      animation: fadeInUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
-    }
-    
-    .animate-heart {
-      animation: heartbeat 1.8s ease-in-out infinite;
-    }
-    
-    /* Estilos minimalistas neutros */
+    .animate-fade-up { animation: fadeInUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards; }
+    .animate-heart { animation: heartbeat 1.8s ease-in-out infinite; }
     .card-neutral {
       background: rgba(28, 28, 32, 0.7);
       backdrop-filter: blur(12px);
       border: 0.5px solid rgba(128, 128, 128, 0.2);
       border-radius: 28px;
       transition: all 0.3s ease;
+      cursor: pointer;
     }
-    
-    .card-neutral:hover {
-      background: rgba(38, 38, 44, 0.8);
-      border-color: rgba(160, 160, 160, 0.35);
-      transform: translateY(-3px);
-    }
-    
+    .card-neutral:hover { background: rgba(38, 38, 44, 0.8); transform: translateY(-3px); }
     .input-neutral {
       background: rgba(20, 20, 24, 0.8);
       border: 0.5px solid rgba(128, 128, 128, 0.3);
@@ -93,86 +63,30 @@
       transition: all 0.2s ease;
       color: #f0efec;
     }
-    
     .input-neutral:focus {
       outline: none;
       border-color: #9ca3af;
       background: rgba(32, 32, 38, 0.9);
-      box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.15);
     }
-    
     .btn-neutral {
       background: rgba(64, 64, 70, 0.6);
       border: 0.5px solid rgba(128, 128, 128, 0.3);
       transition: all 0.2s ease;
     }
-    
-    .btn-neutral:hover {
-      background: rgba(80, 80, 88, 0.8);
-      border-color: rgba(156, 163, 175, 0.5);
-    }
-    
+    .btn-neutral:hover { background: rgba(80, 80, 88, 0.8); }
     .btn-primary {
       background: rgba(100, 100, 110, 0.7);
       border: 0.5px solid rgba(160, 160, 170, 0.4);
     }
-    
-    .btn-primary:hover {
-      background: rgba(120, 120, 132, 0.8);
-    }
-    
-    /* Scroll elegante */
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #1a1a1e;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #5a5a66;
-      border-radius: 10px;
-    }
-    
-    button, .clickable {
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    button:active {
-      transform: scale(0.97);
-    }
-    
-    .album-image {
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      width: 100%;
-      background: #1c1c20;
-    }
-    
-    /* Responsive */
-    @media (max-width: 640px) {
-      .card-neutral {
-        border-radius: 24px;
-      }
-    }
-    
-    /* Animación para el modal de edición */
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-    
-    .scale-in {
-      animation: scaleIn 0.25s ease-out forwards;
-    }
-    
-    /* Loader */
+    .btn-primary:hover { background: rgba(120, 120, 132, 0.8); }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #1a1a1e; }
+    ::-webkit-scrollbar-thumb { background: #5a5a66; border-radius: 10px; }
+    button { cursor: pointer; transition: all 0.2s ease; }
+    button:active { transform: scale(0.97); }
+    .album-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; background: #1c1c20; }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .scale-in { animation: scaleIn 0.25s ease-out forwards; }
     .loader {
       width: 40px;
       height: 40px;
@@ -181,47 +95,36 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="antialiased">
+<body>
   <div class="stars-background" id="starsContainer"></div>
   
-  <!-- Loader global -->
-  <div id="globalLoader" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[300]">
-    <div class="loader"></div>
-  </div>
-  
-  <!-- Pantalla de acceso con corazones animados -->
+  <!-- Pantalla de acceso -->
   <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50 transition-all duration-700" style="background: #050507;">
     <div class="w-full max-w-sm text-center px-6 animate-fade-up">
       <div class="flex justify-center gap-6 mb-8">
-        <span class="text-6xl animate-heart" style="animation-delay: 0s;">❤️</span>
+        <span class="text-6xl animate-heart">❤️</span>
         <span class="text-6xl animate-heart" style="animation-delay: 0.3s;">❤️</span>
         <span class="text-6xl animate-heart" style="animation-delay: 0.6s;">❤️</span>
       </div>
-      <h1 class="text-5xl font-light tracking-tight text-stone-200">Mafer</h1>
+      <h1 class="text-5xl font-light text-stone-200">Mafer</h1>
       <p class="text-stone-500 text-sm mt-2 mb-8">Ingresa el código secreto</p>
       <input id="pinInput" type="tel" maxlength="8" inputmode="numeric"
-             class="w-full text-center text-2xl tracking-[0.4em] py-5 rounded-3xl input-neutral focus:tracking-[0.5em] transition-all"
+             class="w-full text-center text-2xl tracking-[0.4em] py-5 rounded-3xl input-neutral"
              placeholder="00000000" autocomplete="off">
       <div id="attemptsLeft" class="mt-7 text-xs text-stone-500">
-        Intentos restantes: <span class="text-stone-400 font-medium">3</span>
+        Intentos restantes: <span class="text-stone-400">3</span>
       </div>
     </div>
   </div>
   
   <!-- Contenido principal -->
   <div id="mainContent" class="hidden relative z-10 min-h-screen pb-24">
-    <!-- Header minimalista -->
     <header class="sticky top-0 z-50 py-4 px-5 bg-[#050507]/90 backdrop-blur-xl border-b border-stone-800/50">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <div class="text-lg font-light tracking-wide text-stone-300">
-          ✦ Recuerdos
-        </div>
+        <div class="text-lg font-light text-stone-300">✦ Recuerdos</div>
         <div class="flex items-center gap-2">
           <span class="text-stone-400 text-xs hidden sm:inline">Para Mafer</span>
           <span class="text-rose-400/70 text-xl">❤️</span>
@@ -230,261 +133,254 @@
     </header>
     
     <div class="max-w-7xl mx-auto px-5 py-8">
-      <!-- Encabezado con contador y botón -->
       <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
         <div>
-          <h2 class="text-3xl font-light tracking-tight text-stone-200">Tus Álbumes</h2>
+          <h2 class="text-3xl font-light text-stone-200">Tus Álbumes</h2>
           <p class="text-stone-500 text-sm mt-1">Captura los momentos especiales</p>
         </div>
-        <button onclick="showCreateAlbumModal()" 
-                class="px-5 py-2.5 rounded-full btn-neutral text-stone-300 text-sm flex items-center gap-2 transition-all">
+        <button onclick="showCreateAlbumModal()" class="px-5 py-2.5 rounded-full btn-neutral text-stone-300 text-sm flex items-center gap-2">
           <span class="text-lg">+</span> Nuevo Álbum
         </button>
       </div>
       
-      <!-- Estadísticas rápidas -->
       <div class="flex gap-6 mb-8 text-sm text-stone-400 border-b border-stone-800/50 pb-4">
         <span>📔 <span id="albumCountStat">0</span> álbumes</span>
         <span>🖼️ <span id="photoCountStat">0</span> fotografías</span>
       </div>
       
-      <!-- Grid de álbumes -->
       <div id="albumsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
   </div>
   
   <!-- Modal Crear Álbum -->
-  <div id="createAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] px-4 transition-all">
-    <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 shadow-2xl animate-fade-up">
+  <div id="createAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
+    <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in">
       <h3 class="text-2xl font-light text-center mb-6 text-stone-200">Nuevo Álbum</h3>
       <div class="space-y-5">
-        <input id="albumName" type="text" placeholder="Nombre del álbum" class="w-full px-5 py-3.5 rounded-2xl input-neutral text-base">
-        <div>
-          <label class="text-stone-400 text-sm block mb-2">Fecha del recuerdo</label>
-          <input id="albumDate" type="date" class="w-full px-5 py-3.5 rounded-2xl input-neutral text-stone-200">
-        </div>
+        <input id="albumName" type="text" placeholder="Nombre del álbum" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
+        <input id="albumDate" type="date" class="w-full px-5 py-3.5 rounded-2xl input-neutral text-stone-200">
         <input id="albumLocation" type="text" placeholder="Ubicación (opcional)" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
         <textarea id="albumDesc" rows="3" placeholder="Descripción del álbum..." class="w-full px-5 py-3.5 rounded-2xl input-neutral resize-none"></textarea>
       </div>
       <div class="flex gap-3 mt-7">
-        <button onclick="hideModal('createAlbumModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400 text-sm font-medium">Cancelar</button>
-        <button onclick="createAlbum()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200 text-sm font-medium">Crear Álbum</button>
+        <button onclick="hideModal('createAlbumModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400">Cancelar</button>
+        <button onclick="createAlbum()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200">Crear Álbum</button>
       </div>
     </div>
   </div>
   
   <!-- Modal Editar Álbum -->
-  <div id="editAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[150] px-4 transition-all">
-    <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 shadow-2xl scale-in">
+  <div id="editAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[150] px-4">
+    <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in">
       <h3 class="text-2xl font-light text-center mb-6 text-stone-200">Editar Álbum</h3>
       <div class="space-y-5">
-        <input id="editAlbumName" type="text" placeholder="Nombre del álbum" class="w-full px-5 py-3.5 rounded-2xl input-neutral text-base">
-        <div>
-          <label class="text-stone-400 text-sm block mb-2">Fecha del recuerdo</label>
-          <input id="editAlbumDate" type="date" class="w-full px-5 py-3.5 rounded-2xl input-neutral text-stone-200">
-        </div>
-        <input id="editAlbumLocation" type="text" placeholder="Ubicación (opcional)" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
-        <textarea id="editAlbumDesc" rows="3" placeholder="Descripción del álbum..." class="w-full px-5 py-3.5 rounded-2xl input-neutral resize-none"></textarea>
+        <input id="editAlbumName" type="text" placeholder="Nombre del álbum" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
+        <input id="editAlbumDate" type="date" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
+        <input id="editAlbumLocation" type="text" placeholder="Ubicación" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
+        <textarea id="editAlbumDesc" rows="3" placeholder="Descripción" class="w-full px-5 py-3.5 rounded-2xl input-neutral resize-none"></textarea>
       </div>
       <div class="flex gap-3 mt-7">
-        <button onclick="hideModal('editAlbumModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400 text-sm font-medium">Cancelar</button>
-        <button onclick="saveAlbumEdit()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200 text-sm font-medium">Guardar Cambios</button>
+        <button onclick="hideModal('editAlbumModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400">Cancelar</button>
+        <button onclick="saveAlbumEdit()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200">Guardar Cambios</button>
       </div>
     </div>
   </div>
   
-  <!-- Modal Agregar Foto por URL -->
+  <!-- Modal Agregar Foto -->
   <div id="addPhotoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[250] px-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60">
       <h3 class="text-2xl font-light text-center mb-5 text-stone-200">Agregar Fotografía</h3>
       <input id="photoUrlInput" type="url" placeholder="https://ejemplo.com/imagen.jpg" class="w-full px-5 py-3.5 rounded-2xl input-neutral">
       <p class="text-xs text-stone-500 text-center mt-3">Soporta JPG, PNG, WEBP y GIF. La imagen se optimizará automáticamente.</p>
       <div class="flex gap-3 mt-7">
-        <button onclick="hideModal('addPhotoModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400 text-sm">Cancelar</button>
-        <button id="uploadUrlBtn" onclick="addPhotoFromUrl()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200 text-sm">Agregar</button>
+        <button onclick="hideModal('addPhotoModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400">Cancelar</button>
+        <button onclick="addPhotoFromUrl()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200">Agregar</button>
       </div>
     </div>
   </div>
   
-  <!-- Modal Detalle del Álbum -->
+  <!-- Modal Detalle Álbum -->
   <div id="albumDetailModal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-[200] p-4">
-    <div class="bg-[#121216] rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-800/60 shadow-2xl">
+    <div class="bg-[#121216] rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-800/60">
       <div class="p-5 border-b border-stone-800/60 flex justify-between items-center shrink-0">
-        <div class="flex-1">
-          <h3 id="albumDetailName" class="text-2xl font-light text-stone-100"></h3>
+        <div>
+          <h3 id="albumDetailName" class="text-2xl font-light"></h3>
           <p id="albumDetailInfo" class="text-stone-500 text-xs mt-1"></p>
         </div>
         <div class="flex gap-2">
-          <button onclick="openEditAlbumModal()" class="text-stone-400 hover:text-stone-200 transition text-xl p-2" title="Editar álbum">✎</button>
-          <button onclick="hideModal('albumDetailModal')" class="text-3xl text-stone-500 hover:text-stone-300 transition">&times;</button>
+          <button onclick="openEditAlbumModal()" class="text-stone-400 text-xl p-2">✎</button>
+          <button onclick="hideModal('albumDetailModal')" class="text-3xl text-stone-500">&times;</button>
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto p-5" id="albumPhotosScroll">
+      <div class="flex-1 overflow-y-auto p-5">
         <p id="albumFullDescription" class="text-stone-400 text-sm italic border-l-2 border-stone-600/50 pl-4 mb-6"></p>
         <div id="photosContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
       </div>
       <div class="p-4 border-t border-stone-800/60 flex gap-3 shrink-0 bg-[#0c0c10]">
-        <button onclick="openAddPhotoModal()" class="flex-1 py-3 rounded-2xl btn-neutral text-stone-300 text-sm flex items-center justify-center gap-2">+ Agregar imagen</button>
-        <button onclick="deleteCurrentAlbum()" class="px-5 py-3 rounded-2xl border border-stone-700/80 text-stone-500 text-sm hover:bg-stone-900/50 transition">Eliminar</button>
+        <button onclick="openAddPhotoModal()" class="flex-1 py-3 rounded-2xl btn-neutral text-stone-300">+ Agregar imagen</button>
+        <button onclick="deleteCurrentAlbum()" class="px-5 py-3 rounded-2xl border border-stone-700/80 text-stone-500">Eliminar Álbum</button>
       </div>
     </div>
   </div>
   
-  <!-- Toast de notificaciones -->
   <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full bg-stone-900/90 backdrop-blur-md border border-stone-700/60 text-stone-300 text-xs z-[300]"></div>
   
   <script>
-    // ==================== CONFIGURACIÓN ====================
+    // ==================== 🔥 TU CONFIGURACIÓN DE FIREBASE 🔥 ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyBFnCh3utf6NezjnlidNwfKbIDM5yRXSNk",
+      authDomain: "fotos-recuerdos-b1188.firebaseapp.com",
+      projectId: "fotos-recuerdos-b1188",
+      storageBucket: "fotos-recuerdos-b1188.firebasestorage.app",
+      messagingSenderId: "783868277463",
+      appId: "1:783868277463:web:3e5b9069da3d2d7db47692",
+      measurementId: "G-1LF4ZRE0GS"
+    };
+    
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
     const SECRET_PIN = "06071108";
     let attempts = 3;
     let albums = [];
     let currentAlbumId = null;
     let editingAlbumId = null;
+    let unsubscribeAlbums = null;
     
-    // JSONBin.io Configuration (Base de datos en la nube)
-    const BIN_ID = "67c3e1f18a456b79667944c7";
-    const API_KEY = "$2a$10$zKZPqZxZxZxZxZxZxZxZxO";
-    // NOTA: Para que funcione correctamente, deberás crear tu propio bin en JSONBin.io
-    // y reemplazar BIN_ID y API_KEY con tus credenciales.
-    // Por ahora usaremos localStorage como fallback y sincronización con la nube.
-    
-    let syncEnabled = false;
-    let isSaving = false;
-    
-    // ==================== SINCRO​NIZACIÓN CON LA NUBE ====================
-    async function syncToCloud() {
-      if (isSaving) return;
-      isSaving = true;
-      
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': API_KEY
-          },
-          body: JSON.stringify({ albums: albums, lastUpdated: new Date().toISOString() })
-        });
-        
-        if (response.ok) {
-          console.log('✅ Datos sincronizados con la nube');
-        } else {
-          console.warn('⚠️ No se pudo sincronizar con la nube, los datos se guardan localmente');
-        }
-      } catch (error) {
-        console.error('Error al sincronizar:', error);
-      } finally {
-        isSaving = false;
-      }
-    }
-    
-    async function loadFromCloud() {
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { 'X-Master-Key': API_KEY }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.record && data.record.albums && Array.isArray(data.record.albums)) {
-            albums = data.record.albums;
-            localStorage.setItem('mafer_albums_backup', JSON.stringify(albums));
-            console.log('✅ Datos cargados desde la nube');
-            return true;
-          }
-        }
-        return false;
-      } catch (error) {
-        console.error('Error al cargar desde la nube:', error);
-        return false;
-      }
-    }
-    
-    // ==================== GUARDADO CON SINCRO​NIZACIÓN ====================
-    function saveDataAndSync() {
-      localStorage.setItem('mafer_albums_neutral', JSON.stringify(albums));
-      updateStats();
-      renderAlbums();
-      syncToCloud();
-    }
-    
-    function saveData() {
-      localStorage.setItem('mafer_albums_neutral', JSON.stringify(albums));
-      updateStats();
-      renderAlbums();
-      // Sincronizar en segundo plano sin bloquear
-      setTimeout(() => syncToCloud(), 100);
-    }
-    
-    // ==================== GENERAR ESTRELLAS ====================
-    function generateStars() {
-      const container = document.getElementById('starsContainer');
-      if (!container) return;
-      container.innerHTML = '';
-      const starCount = window.innerWidth < 768 ? 120 : 200;
-      for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-        const size = Math.random() * 2 + 1;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDelay = `${Math.random() * 4}s`;
-        star.style.animationDuration = `${2 + Math.random() * 3}s`;
-        container.appendChild(star);
-      }
-    }
-    
-    window.addEventListener('resize', () => generateStars());
-    
-    // ==================== UTILIDADES ====================
-    function showToast(message, isError = false) {
+    function showToast(msg, isErr = false) {
       const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full backdrop-blur-md border text-xs z-[300] transition-all ${isError ? 'bg-red-950/80 border-red-800/60 text-red-300' : 'bg-stone-900/90 border-stone-700/60 text-stone-300'}`;
+      toast.textContent = msg;
+      toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full backdrop-blur-md border text-xs z-[300] ${isErr ? 'bg-red-950/80 border-red-800/60 text-red-300' : 'bg-stone-900/90 border-stone-700/60 text-stone-300'}`;
       toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 2800);
+      setTimeout(() => toast.classList.add('hidden'), 3000);
     }
     
     function formatDateSpanish(dateStr) {
       if (!dateStr) return '';
       const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-      const [year, month, day] = dateStr.split('-').map(Number);
-      return `${day} de ${months[month - 1]} de ${year}`;
+      const [year, month, day] = dateStr.split('-');
+      return `${parseInt(day)} de ${months[parseInt(month)-1]} de ${year}`;
     }
     
-    function capitalizeFirst(str) {
-      if (!str) return '';
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+    function capitalizeFirst(str) { if (!str) return ''; return str.charAt(0).toUpperCase() + str.slice(1); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
     
-    // ==================== CARGA DE DATOS ====================
-    async function loadData() {
-      const localData = localStorage.getItem('mafer_albums_neutral');
-      
-      // Intentar cargar desde la nube primero
-      const cloudLoaded = await loadFromCloud();
-      
-      if (!cloudLoaded && localData) {
-        albums = JSON.parse(localData);
-        showToast('📀 Cargando datos locales...');
-      } else if (!cloudLoaded && !localData) {
-        albums = [];
+    function generateStars() {
+      const container = document.getElementById('starsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      const count = window.innerWidth < 768 ? 120 : 200;
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        star.style.width = `${Math.random() * 2 + 1}px`;
+        star.style.height = star.style.width;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDelay = `${Math.random() * 4}s`;
+        container.appendChild(star);
       }
-      
-      updateStats();
     }
     
-    function updateStats() {
-      const totalPhotos = albums.reduce((acc, album) => acc + (album.photos?.length || 0), 0);
-      const albumCountSpan = document.getElementById('albumCountStat');
-      const photoCountSpan = document.getElementById('photoCountStat');
-      if (albumCountSpan) albumCountSpan.innerText = albums.length;
-      if (photoCountSpan) photoCountSpan.innerText = totalPhotos;
+    // Sincronización en tiempo real con Firestore
+    function startRealtimeSync() {
+      if (unsubscribeAlbums) unsubscribeAlbums();
+      unsubscribeAlbums = db.collection('albums')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot((snapshot) => {
+          albums = [];
+          snapshot.forEach(doc => {
+            albums.push({ id: doc.id, ...doc.data() });
+          });
+          renderAlbums();
+          updateStats();
+          if (albums.length > 0) showToast('✨ Datos sincronizados desde la nube');
+        }, (error) => {
+          console.error(error);
+          showToast('Error de conexión con Firebase', true);
+        });
     }
     
-    // ==================== RENDER ÁLBUMES ====================
+    async function saveAlbumToCloud(albumData, albumId = null) {
+      try {
+        if (albumId) {
+          await db.collection('albums').doc(albumId).update({
+            ...albumData,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          showToast('Álbum actualizado');
+        } else {
+          const newAlbum = {
+            ...albumData,
+            photos: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          await db.collection('albums').add(newAlbum);
+          showToast('Álbum creado con éxito');
+        }
+        return true;
+      } catch (error) {
+        console.error(error);
+        showToast('Error al guardar en la nube', true);
+        return false;
+      }
+    }
+    
+    async function deleteAlbumFromCloud(albumId) {
+      try {
+        await db.collection('albums').doc(albumId).delete();
+        showToast('Álbum eliminado');
+        return true;
+      } catch (error) {
+        showToast('Error al eliminar', true);
+        return false;
+      }
+    }
+    
+    async function addPhotoToCloud(albumId, photoBase64) {
+      try {
+        const albumRef = db.collection('albums').doc(albumId);
+        const doc = await albumRef.get();
+        if (doc.exists) {
+          const current = doc.data().photos || [];
+          current.push(photoBase64);
+          await albumRef.update({
+            photos: current,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          showToast('Foto agregada correctamente');
+          return true;
+        }
+        return false;
+      } catch (error) {
+        showToast('Error al agregar foto', true);
+        return false;
+      }
+    }
+    
+    async function deletePhotoFromCloud(albumId, photoIndex) {
+      try {
+        const albumRef = db.collection('albums').doc(albumId);
+        const doc = await albumRef.get();
+        if (doc.exists) {
+          const current = doc.data().photos || [];
+          current.splice(photoIndex, 1);
+          await albumRef.update({
+            photos: current,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          showToast('Foto eliminada');
+          return true;
+        }
+        return false;
+      } catch (error) {
+        showToast('Error al eliminar foto', true);
+        return false;
+      }
+    }
+    
     function renderAlbums() {
       const grid = document.getElementById('albumsGrid');
       if (!grid) return;
@@ -501,23 +397,23 @@
         return;
       }
       
-      albums.forEach((album, index) => {
-        const coverImage = album.photos && album.photos.length > 0 ? album.photos[0] : null;
+      albums.forEach((album, idx) => {
+        const cover = album.photos && album.photos.length > 0 ? album.photos[0] : null;
         const card = document.createElement('div');
-        card.className = 'card-neutral rounded-2xl overflow-hidden cursor-pointer transition-all';
+        card.className = 'card-neutral rounded-2xl overflow-hidden';
         card.style.animation = `fadeInUp 0.4s ease forwards`;
-        card.style.animationDelay = `${index * 0.05}s`;
+        card.style.animationDelay = `${idx * 0.05}s`;
         card.innerHTML = `
           <div class="album-image flex items-center justify-center overflow-hidden bg-[#141418]">
-            ${coverImage ? `<img src="${coverImage}" class="w-full h-full object-cover" loading="lazy" alt="Portada del álbum">` : `<span class="text-5xl opacity-30">❤️</span>`}
+            ${cover ? `<img src="${cover}" class="w-full h-full object-cover" loading="lazy">` : '<span class="text-5xl opacity-30">❤️</span>'}
           </div>
           <div class="p-5">
-            <h3 class="font-medium text-stone-200 text-xl tracking-tight">${capitalizeFirst(escapeHtml(album.name))}</h3>
-            <div class="flex justify-between items-center mt-2">
+            <h3 class="font-medium text-stone-200 text-xl">${capitalizeFirst(escapeHtml(album.name))}</h3>
+            <div class="flex justify-between mt-2">
               <span class="text-stone-500 text-xs">${formatDateSpanish(album.date)}</span>
               <span class="text-stone-500 text-xs">${album.photos?.length || 0} ${(album.photos?.length || 0) === 1 ? 'foto' : 'fotos'}</span>
             </div>
-            ${album.location ? `<p class="text-stone-500 text-xs mt-2 flex items-center gap-1">📍 ${capitalizeFirst(escapeHtml(album.location))}</p>` : ''}
+            ${album.location ? `<p class="text-stone-500 text-xs mt-2">📍 ${capitalizeFirst(escapeHtml(album.location))}</p>` : ''}
           </div>
         `;
         card.onclick = () => showAlbumDetail(album.id);
@@ -525,17 +421,6 @@
       });
     }
     
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
-    }
-    
-    // ==================== GALERÍA DE FOTOS ====================
     function renderPhotos(photos) {
       const container = document.getElementById('photosContainer');
       if (!container) return;
@@ -553,82 +438,22 @@
       }
       
       photos.forEach((photo, idx) => {
-        const photoDiv = document.createElement('div');
-        photoDiv.className = 'relative group bg-[#0c0c10] rounded-xl overflow-hidden border border-stone-800/40';
-        photoDiv.innerHTML = `
-          <img src="${photo}" class="w-full h-auto max-h-64 object-contain bg-[#0a0a0e]" loading="lazy" alt="Foto del recuerdo">
-          <button onclick="event.stopPropagation(); deletePhoto(${idx})" class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-stone-300 text-xs w-7 h-7 rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center hover:bg-red-900/70">✕</button>
+        const div = document.createElement('div');
+        div.className = 'relative group bg-[#0c0c10] rounded-xl overflow-hidden border border-stone-800/40';
+        div.innerHTML = `
+          <img src="${photo}" class="w-full h-auto max-h-64 object-contain bg-[#0a0a0e]" loading="lazy">
+          <button onclick="event.stopPropagation(); deletePhoto(${idx})" class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-stone-300 text-xs w-7 h-7 rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">✕</button>
         `;
-        container.appendChild(photoDiv);
+        container.appendChild(div);
       });
     }
     
-    function deletePhoto(index) {
-      if (!confirm('¿Eliminar esta fotografía del álbum?')) return;
-      const album = albums.find(a => a.id === currentAlbumId);
-      if (album && album.photos) {
-        album.photos.splice(index, 1);
-        saveData();
-        renderPhotos(album.photos);
-        renderAlbums();
-        showToast('Fotografía eliminada');
-      }
+    function updateStats() {
+      const total = albums.reduce((a, b) => a + (b.photos?.length || 0), 0);
+      document.getElementById('albumCountStat').innerText = albums.length;
+      document.getElementById('photoCountStat').innerText = total;
     }
     
-    // ==================== EDITAR ÁLBUM ====================
-    function openEditAlbumModal() {
-      const album = albums.find(a => a.id === currentAlbumId);
-      if (!album) return;
-      
-      // Cerrar el modal del álbum primero
-      hideModal('albumDetailModal');
-      
-      editingAlbumId = currentAlbumId;
-      document.getElementById('editAlbumName').value = album.name || '';
-      document.getElementById('editAlbumDate').value = album.date || '';
-      document.getElementById('editAlbumLocation').value = album.location || '';
-      document.getElementById('editAlbumDesc').value = album.description || '';
-      
-      const modal = document.getElementById('editAlbumModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-    
-    function saveAlbumEdit() {
-      const album = albums.find(a => a.id === editingAlbumId);
-      if (!album) {
-        showToast('Error: Álbum no encontrado', true);
-        return;
-      }
-      
-      const newName = document.getElementById('editAlbumName').value.trim();
-      const newDate = document.getElementById('editAlbumDate').value;
-      const newLocation = document.getElementById('editAlbumLocation').value.trim();
-      const newDescription = document.getElementById('editAlbumDesc').value.trim();
-      
-      if (!newName) {
-        showToast('El nombre del álbum no puede estar vacío', true);
-        return;
-      }
-      
-      if (!newDate) {
-        showToast('Por favor, selecciona una fecha', true);
-        return;
-      }
-      
-      album.name = newName;
-      album.date = newDate;
-      album.location = newLocation || null;
-      album.description = newDescription || '';
-      
-      saveData();
-      renderAlbums();
-      
-      hideModal('editAlbumModal');
-      showToast('Álbum actualizado correctamente');
-    }
-    
-    // ==================== ÁLBUMES ====================
     function showAlbumDetail(id) {
       currentAlbumId = id;
       const album = albums.find(a => a.id === id);
@@ -646,18 +471,8 @@
       }
       
       renderPhotos(album.photos || []);
-      const modal = document.getElementById('albumDetailModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-    
-    function deleteCurrentAlbum() {
-      if (!confirm('¿Eliminar este álbum completo? Esta acción no se puede deshacer.')) return;
-      albums = albums.filter(a => a.id !== currentAlbumId);
-      saveData();
-      hideModal('albumDetailModal');
-      renderAlbums();
-      showToast('Álbum eliminado');
+      document.getElementById('albumDetailModal').classList.remove('hidden');
+      document.getElementById('albumDetailModal').classList.add('flex');
     }
     
     function hideModal(id) {
@@ -669,83 +484,93 @@
     }
     
     function showCreateAlbumModal() {
-      const modal = document.getElementById('createAlbumModal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        document.getElementById('albumName').value = '';
-        document.getElementById('albumDate').value = '';
-        document.getElementById('albumLocation').value = '';
-        document.getElementById('albumDesc').value = '';
-      }
-    }
-    
-    function createAlbum() {
-      const name = document.getElementById('albumName').value.trim();
-      const date = document.getElementById('albumDate').value;
-      
-      if (!name) {
-        showToast('Por favor, escribe un nombre para el álbum', true);
-        return;
-      }
-      if (!date) {
-        showToast('Por favor, selecciona una fecha para el recuerdo', true);
-        return;
-      }
-      
-      albums.unshift({
-        id: Date.now(),
-        name: name,
-        date: date,
-        location: document.getElementById('albumLocation').value.trim() || null,
-        description: document.getElementById('albumDesc').value.trim() || '',
-        photos: []
-      });
-      
-      saveData();
-      renderAlbums();
-      hideModal('createAlbumModal');
-      showToast('Álbum creado con éxito');
+      document.getElementById('createAlbumModal').classList.remove('hidden');
+      document.getElementById('createAlbumModal').classList.add('flex');
+      document.getElementById('albumName').value = '';
+      document.getElementById('albumDate').value = '';
+      document.getElementById('albumLocation').value = '';
+      document.getElementById('albumDesc').value = '';
     }
     
     function openAddPhotoModal() {
-      const modal = document.getElementById('addPhotoModal');
-      if (modal) {
-        document.getElementById('photoUrlInput').value = '';
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-      }
+      document.getElementById('photoUrlInput').value = '';
+      document.getElementById('addPhotoModal').classList.remove('hidden');
+      document.getElementById('addPhotoModal').classList.add('flex');
     }
     
-    // ==================== AGREGAR FOTO DESDE URL ====================
+    async function createAlbum() {
+      const name = document.getElementById('albumName').value.trim();
+      const date = document.getElementById('albumDate').value;
+      
+      if (!name) { showToast('Escribe un nombre para el álbum', true); return; }
+      if (!date) { showToast('Selecciona una fecha', true); return; }
+      
+      await saveAlbumToCloud({
+        name: name,
+        date: date,
+        location: document.getElementById('albumLocation').value.trim() || null,
+        description: document.getElementById('albumDesc').value.trim() || ''
+      });
+      
+      hideModal('createAlbumModal');
+    }
+    
+    function openEditAlbumModal() {
+      const album = albums.find(a => a.id === currentAlbumId);
+      if (!album) return;
+      
+      hideModal('albumDetailModal');
+      editingAlbumId = currentAlbumId;
+      document.getElementById('editAlbumName').value = album.name || '';
+      document.getElementById('editAlbumDate').value = album.date || '';
+      document.getElementById('editAlbumLocation').value = album.location || '';
+      document.getElementById('editAlbumDesc').value = album.description || '';
+      document.getElementById('editAlbumModal').classList.remove('hidden');
+      document.getElementById('editAlbumModal').classList.add('flex');
+    }
+    
+    async function saveAlbumEdit() {
+      const name = document.getElementById('editAlbumName').value.trim();
+      const date = document.getElementById('editAlbumDate').value;
+      
+      if (!name) { showToast('El nombre no puede estar vacío', true); return; }
+      if (!date) { showToast('Selecciona una fecha', true); return; }
+      
+      await saveAlbumToCloud({
+        name: name,
+        date: date,
+        location: document.getElementById('editAlbumLocation').value.trim() || null,
+        description: document.getElementById('editAlbumDesc').value.trim() || ''
+      }, editingAlbumId);
+      
+      hideModal('editAlbumModal');
+    }
+    
+    async function deleteCurrentAlbum() {
+      if (!confirm('¿Eliminar este álbum completo? Esta acción no se puede deshacer.')) return;
+      await deleteAlbumFromCloud(currentAlbumId);
+      hideModal('albumDetailModal');
+    }
+    
+    async function deletePhoto(index) {
+      if (!confirm('¿Eliminar esta foto del álbum?')) return;
+      await deletePhotoFromCloud(currentAlbumId, index);
+    }
+    
     async function addPhotoFromUrl() {
       const url = document.getElementById('photoUrlInput').value.trim();
-      if (!url) {
-        showToast('Ingresa un enlace de imagen válido', true);
-        return;
-      }
+      if (!url) { showToast('Ingresa un enlace de imagen válido', true); return; }
       
-      const btn = document.getElementById('uploadUrlBtn');
+      const btn = event.target;
       const originalText = btn.innerText;
       btn.innerText = 'Procesando...';
       btn.disabled = true;
       
       try {
-        const compressedImage = await compressImageFromUrl(url);
-        const album = albums.find(a => a.id === currentAlbumId);
-        if (album) {
-          album.photos = album.photos || [];
-          album.photos.push(compressedImage);
-          saveData();
-          renderPhotos(album.photos);
-          renderAlbums();
-          hideModal('addPhotoModal');
-          showToast('Imagen agregada correctamente');
-        } else {
-          throw new Error('Álbum no encontrado');
-        }
+        const compressedImage = await compressImage(url);
+        await addPhotoToCloud(currentAlbumId, compressedImage);
+        hideModal('addPhotoModal');
       } catch (error) {
-        console.error(error);
         showToast('Error: No se pudo cargar la imagen. Verifica el enlace.', true);
       } finally {
         btn.innerText = originalText;
@@ -753,7 +578,7 @@
       }
     }
     
-    function compressImageFromUrl(url) {
+    function compressImage(url) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = 'Anonymous';
@@ -782,28 +607,25 @@
           resolve(canvas.toDataURL('image/jpeg', 0.8));
         };
         
-        img.onerror = () => reject(new Error('Error al cargar la imagen desde la URL'));
+        img.onerror = () => reject(new Error('Error al cargar la imagen'));
       });
     }
     
-    // ==================== VERIFICACIÓN DE ACCESO ====================
     function checkPin() {
       const input = document.getElementById('pinInput');
       if (input.value === SECRET_PIN) {
-        const loginScreen = document.getElementById('loginScreen');
-        loginScreen.style.opacity = '0';
+        document.getElementById('loginScreen').style.opacity = '0';
         setTimeout(() => {
-          loginScreen.classList.add('hidden');
+          document.getElementById('loginScreen').classList.add('hidden');
           document.getElementById('mainContent').classList.remove('hidden');
-          renderAlbums();
           generateStars();
+          startRealtimeSync();
         }, 400);
       } else {
         attempts--;
-        const attemptsSpan = document.querySelector('#attemptsLeft span');
-        if (attemptsSpan) attemptsSpan.innerText = attempts;
+        document.querySelector('#attemptsLeft span').innerText = attempts;
         if (attempts <= 0) {
-          alert('Código incorrecto. Por favor, recarga la página.');
+          alert('Código incorrecto. Recarga la página.');
           location.reload();
         } else {
           input.value = '';
@@ -813,18 +635,12 @@
       }
     }
     
-    // ==================== EVENTOS INICIALES ====================
     document.getElementById('pinInput')?.addEventListener('input', function() {
       if (this.value.length === 8) checkPin();
     });
     
-    window.onload = async () => {
+    window.onload = () => {
       generateStars();
-      await loadData();
-      setTimeout(() => {
-        const pinInput = document.getElementById('pinInput');
-        if (pinInput) pinInput.focus();
-      }, 200);
     };
   </script>
 </body>
