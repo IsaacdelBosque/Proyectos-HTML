@@ -10,8 +10,6 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <!-- Masonry layout -->
-  <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -234,11 +232,40 @@
     .photo-card:hover { transform: translateY(-5px); border-color: rgba(255,200,150,0.5); }
     .photo-card img { width: 100%; height: auto; display: block; cursor: pointer; }
     .comments-section { padding: 12px; border-top: 0.5px solid rgba(255,200,150,0.2); }
-    .comment-item { font-size: 12px; padding: 6px 0; border-bottom: 0.5px solid rgba(255,200,150,0.1); display: flex; align-items: center; gap: 8px; }
-    .comment-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-    .comment-isaac { color: #7aa2f7; }
-    .comment-mafer { color: #f7a87a; }
-    .comment-author { font-weight: 600; margin-right: 8px; }
+    
+    /* ESTILOS CORREGIDOS PARA COMENTARIOS - FOTO PEQUEÑA Y TEXTO LEGIBLE */
+    .comment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 0.5px solid rgba(255,200,150,0.1);
+    }
+    .comment-avatar {
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .comment-content {
+      flex: 1;
+      line-height: 1.4;
+    }
+    .comment-author {
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+    .comment-isaac .comment-author { color: #7aa2f7; }
+    .comment-mafer .comment-author { color: #f7a87a; }
+    .comment-text {
+      font-size: 12px;
+      color: #e0dccc;
+      word-break: break-word;
+      line-height: 1.4;
+    }
     
     /* Descripciones duales con avatar */
     .dual-description {
@@ -354,7 +381,7 @@
     </div>
   </div>
   
-  <!-- Modales existentes (crear álbum, editar, etc.) -->
+  <!-- Modales -->
   <div id="createAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in max-h-[90vh] overflow-y-auto">
       <h3 class="text-2xl font-light text-center mb-6 text-stone-200">Nuevo Álbum</h3>
@@ -464,15 +491,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
-    // Usuarios y sus PINs con fotos de perfil por defecto
+    // Usuarios y sus PINs
     const USERS = {
-      "1108": { name: "Isaac", emoji: "👨", color: "#7aa2f7", defaultAvatar: "https://i.postimg.cc/7Y9xXjKq/default-avatar-man.png" },
-      "0607": { name: "Mafer", emoji: "👩", color: "#f7a87a", defaultAvatar: "https://i.postimg.cc/8cC5vXvK/default-avatar-woman.png" }
+      "1108": { name: "Isaac", emoji: "👨", color: "#7aa2f7", defaultAvatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+      "0607": { name: "Mafer", emoji: "👩", color: "#f7a87a", defaultAvatar: "https://cdn-icons-png.flaticon.com/512/3135/3135768.png" }
     };
     
     let currentUser = null;
-    let userProfiles = {}; // Almacena las fotos de perfil de cada usuario
-    let attempts = 3;
+    let userProfiles = {};
     let albums = [];
     let currentAlbumId = null;
     let editingAlbumId = null;
@@ -485,8 +511,9 @@
     
     const START_DATE = new Date("2026-01-26");
     let viewCount = parseInt(localStorage.getItem('viewCount') || '0');
+    let attempts = 3;
     
-    // ==================== FUNCIONES DE UTILIDAD ====================
+    // ==================== UTILIDADES ====================
     function showToast(msg, isErr = false) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -514,7 +541,7 @@
       document.getElementById('daysCounter').innerHTML = `💕 ${diffDays} días juntos 💕`;
     }
     
-    // ==================== FOTOS DE PERFIL EN FIRESTORE ====================
+    // ==================== PERFIL ====================
     async function loadUserProfiles() {
       const doc = await db.collection('settings').doc('userProfiles').get();
       if (doc.exists) {
@@ -529,11 +556,21 @@
       updateUserBadge();
     }
     
+    function getUserAvatar(userName) {
+      return userProfiles[userName] || (userName === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar);
+    }
+    
+    function updateUserBadge() {
+      const badge = document.getElementById('userBadge');
+      if (badge && currentUser) {
+        badge.innerHTML = `<img src="${getUserAvatar(currentUser.name)}" class="user-avatar-small" onerror="this.src='${currentUser.name === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar}'"><span class="user-name">${currentUser.name}</span>`;
+      }
+    }
+    
     async function saveUserProfilePhoto(userName, photoUrl) {
       userProfiles[userName] = photoUrl;
       await db.collection('settings').doc('userProfiles').set(userProfiles);
       updateUserBadge();
-      // Actualizar vistas actuales
       if (currentAlbumId && document.getElementById('albumDetailModal').classList.contains('flex')) {
         const album = albums.find(a => a.id === currentAlbumId);
         if (album) {
@@ -542,21 +579,6 @@
         }
       }
       showToast('Foto de perfil actualizada ✨');
-    }
-    
-    function getUserAvatar(userName) {
-      return userProfiles[userName] || (userName === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar);
-    }
-    
-    function updateUserBadge() {
-      const badge = document.getElementById('userBadge');
-      if (badge && currentUser) {
-        const avatarUrl = getUserAvatar(currentUser.name);
-        badge.innerHTML = `
-          <img src="${avatarUrl}" class="user-avatar-small" onerror="this.src='${currentUser.name === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar}'">
-          <span class="user-name">${currentUser.name}</span>
-        `;
-      }
     }
     
     function openProfileModal() {
@@ -574,7 +596,7 @@
       hideModal('profileModal');
     }
     
-    // ==================== SISTEMA DE LOGIN ====================
+    // ==================== LOGIN ====================
     function checkPin() {
       const input = document.getElementById('pinInput').value;
       if (USERS[input]) {
@@ -603,7 +625,7 @@
     
     document.getElementById('pinInput')?.addEventListener('input', function() { if (this.value.length === 4) checkPin(); });
     
-    // ==================== FUNCIONES DE ÁLBUMES ====================
+    // ==================== ÁLBUMES ====================
     function renderAlbums() {
       const grid = document.getElementById('albumsGrid');
       if (!grid) return;
@@ -653,11 +675,14 @@
                 <span class="text-xs text-stone-400">💬 ${photoComments.length} comentarios</span>
                 <button onclick="event.stopPropagation(); openCommentModal(${idx})" class="text-xs text-amber-500/70 hover:text-amber-400">➕ Comentar</button>
               </div>
-              <div id="comments-${idx}" class="comments-list max-h-32 overflow-y-auto">
+              <div id="comments-${idx}" class="comments-list">
                 ${photoComments.map(c => `
                   <div class="comment-item ${c.user === 'Isaac' ? 'comment-isaac' : 'comment-mafer'}">
                     <img src="${getUserAvatar(c.user)}" class="comment-avatar" onerror="this.src='${c.user === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar}'">
-                    <span><span class="comment-author">${c.user === 'Isaac' ? '👨 Isaac' : '👩 Mafer'}:</span>${escapeHtml(c.text)}</span>
+                    <div class="comment-content">
+                      <span class="comment-author">${c.user === 'Isaac' ? '👨 Isaac' : '👩 Mafer'}</span>
+                      <span class="comment-text">${escapeHtml(c.text)}</span>
+                    </div>
                   </div>
                 `).join('')}
               </div>
@@ -707,7 +732,6 @@
       document.getElementById('albumDetailModal').classList.add('flex');
     }
     
-    // ==================== SLIDESHOW ====================
     function startAlbumSlideshow() {
       const album = albums.find(a => a.id === currentAlbumId);
       if (!album?.photos?.length) { showToast('No hay fotos para mostrar', true); return; }
@@ -835,7 +859,7 @@
     function closeFullscreenGallery() { stopGallerySlideshow(); const g = document.getElementById('fullscreenGallery'); if (g) g.remove(); document.removeEventListener('keydown', galleryKeyHandler); }
     function galleryKeyHandler(e) { if (e.key === 'ArrowLeft') document.getElementById('galleryPrevBtn')?.click(); if (e.key === 'ArrowRight') document.getElementById('galleryNextBtn')?.click(); if (e.key === 'Escape') closeFullscreenGallery(); }
     
-    // ==================== FIREBASE SYNC ====================
+    // ==================== FIREBASE ====================
     async function saveAlbumToCloud(data, albumId = null) {
       try {
         if (albumId) await db.collection('albums').doc(albumId).update({ ...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
