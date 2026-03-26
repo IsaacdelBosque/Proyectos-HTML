@@ -10,7 +10,7 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <!-- Masonry layout para galería mejorada -->
+  <!-- Masonry layout -->
   <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,7 +21,7 @@
       touch-action: manipulation;
     }
     
-    /* Fondo de estrellas mejorado */
+    /* Fondo de estrellas */
     .stars-background {
       position: fixed;
       top: 0;
@@ -62,11 +62,9 @@
     }
     
     /* Transiciones suaves */
-    .smooth-transition {
-      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
+    .smooth-transition { transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
     
-    /* Modal confirmación bonito */
+    /* Modal confirmación */
     .custom-confirm {
       background: rgba(20, 20, 28, 0.95);
       backdrop-filter: blur(20px);
@@ -180,7 +178,7 @@
       100% { opacity: 0; transform: translateY(-150px) scale(1.5); }
     }
     
-    /* Estilos base */
+    /* Animaciones base */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes heartbeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
     @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -219,16 +217,13 @@
     button:active { transform: scale(0.97); }
     .album-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; background: #1c1c20; }
     
-    /* Galería Masonry mejorada */
+    /* Galería Masonry */
     .masonry-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
     }
-    .masonry-item {
-      break-inside: avoid;
-      margin-bottom: 0;
-    }
+    .masonry-item { break-inside: avoid; margin-bottom: 0; }
     .photo-card {
       background: rgba(20, 20, 28, 0.6);
       border-radius: 20px;
@@ -239,21 +234,49 @@
     .photo-card:hover { transform: translateY(-5px); border-color: rgba(255,200,150,0.5); }
     .photo-card img { width: 100%; height: auto; display: block; cursor: pointer; }
     .comments-section { padding: 12px; border-top: 0.5px solid rgba(255,200,150,0.2); }
-    .comment-item { font-size: 12px; padding: 6px 0; border-bottom: 0.5px solid rgba(255,200,150,0.1); }
+    .comment-item { font-size: 12px; padding: 6px 0; border-bottom: 0.5px solid rgba(255,200,150,0.1); display: flex; align-items: center; gap: 8px; }
+    .comment-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
     .comment-isaac { color: #7aa2f7; }
     .comment-mafer { color: #f7a87a; }
     .comment-author { font-weight: 600; margin-right: 8px; }
     
-    /* Descripciones duales */
+    /* Descripciones duales con avatar */
     .dual-description {
       background: rgba(0,0,0,0.3);
       border-radius: 16px;
       padding: 12px;
       margin-bottom: 16px;
     }
-    .desc-isaac { border-left: 3px solid #7aa2f7; padding-left: 12px; margin-bottom: 8px; }
-    .desc-mafer { border-left: 3px solid #f7a87a; padding-left: 12px; }
+    .desc-isaac { border-left: 3px solid #7aa2f7; padding-left: 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
+    .desc-mafer { border-left: 3px solid #f7a87a; padding-left: 12px; display: flex; gap: 10px; align-items: flex-start; }
+    .desc-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .desc-content { flex: 1; }
     .desc-author { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+    
+    /* Badge de usuario con foto */
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,200,150,0.15);
+      padding: 4px 12px 4px 6px;
+      border-radius: 40px;
+      border: 0.5px solid rgba(255,200,150,0.3);
+    }
+    .user-avatar-small { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .user-name { font-size: 12px; font-weight: 500; }
+    
+    /* Botón para cambiar foto de perfil */
+    .profile-btn {
+      background: rgba(255,200,150,0.1);
+      border: 0.5px solid rgba(255,200,150,0.3);
+      border-radius: 40px;
+      padding: 6px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .profile-btn:hover { background: rgba(255,200,150,0.25); }
   </style>
 </head>
 <body>
@@ -261,7 +284,7 @@
   <div id="loveMessage" class="love-message hidden">✨💖</div>
   <div id="daysCounter" class="days-counter">💕 Calculando días... 💕</div>
   
-  <!-- Pantalla de acceso con dos usuarios -->
+  <!-- Pantalla de acceso -->
   <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50 transition-all duration-700" style="background: #050507;">
     <div class="w-full max-w-sm text-center px-6 animate-fade-up">
       <div class="flex justify-center gap-6 mb-8">
@@ -282,11 +305,12 @@
   
   <!-- Contenido principal -->
   <div id="mainContent" class="hidden relative z-10 min-h-screen pb-24">
-    <header class="sticky top-0 z-50 py-4 px-5 bg-[#050507]/90 backdrop-blur-xl border-b border-stone-800/50">
+    <header class="sticky top-0 z-50 py-3 px-5 bg-[#050507]/90 backdrop-blur-xl border-b border-stone-800/50">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <div class="text-lg font-light text-stone-300">✦ Recuerdos del alma </div>
+        <div class="text-lg font-light text-stone-300">✦ Recuerdos del alma</div>
         <div class="flex items-center gap-3">
-          <span id="userBadge" class="text-xs px-3 py-1 rounded-full bg-rose-800/50 text-rose-200"></span>
+          <div id="userBadge" class="user-badge"></div>
+          <button onclick="openProfileModal()" class="profile-btn text-xs">📷 Cambiar foto</button>
           <span class="text-rose-400/70 text-xl">❤️</span>
         </div>
       </div>
@@ -313,7 +337,24 @@
     </div>
   </div>
   
-  <!-- Modales (actualizados para descripciones duales) -->
+  <!-- Modal para cambiar foto de perfil -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[400] px-4">
+    <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in">
+      <h3 class="text-2xl font-light text-center mb-5 text-stone-200">📸 Cambiar foto de perfil</h3>
+      <div class="text-center mb-4">
+        <img id="currentAvatarPreview" src="" class="w-24 h-24 rounded-full object-cover mx-auto border-2 border-amber-500/50">
+        <p id="profileUserName" class="text-stone-300 mt-2"></p>
+      </div>
+      <input id="profilePhotoUrl" type="url" placeholder="https://ejemplo.com/tu-foto.jpg" class="w-full px-5 py-3.5 rounded-2xl input-neutral mb-4">
+      <p class="text-xs text-stone-500 text-center mb-4">Pega el enlace directo de tu foto (JPG, PNG, WEBP)</p>
+      <div class="flex gap-3">
+        <button onclick="hideModal('profileModal')" class="flex-1 py-3.5 rounded-2xl border border-stone-700 text-stone-400">Cancelar</button>
+        <button onclick="saveProfilePhoto()" class="flex-1 py-3.5 rounded-2xl btn-primary text-stone-200">Guardar</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modales existentes (crear álbum, editar, etc.) -->
   <div id="createAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in max-h-[90vh] overflow-y-auto">
       <h3 class="text-2xl font-light text-center mb-6 text-stone-200">Nuevo Álbum</h3>
@@ -423,22 +464,24 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
-    // Usuarios y sus PINs
+    // Usuarios y sus PINs con fotos de perfil por defecto
     const USERS = {
-      "1108": { name: "Isaac", emoji: "👨", color: "#7aa2f7", descKey: "descIsaac" },
-      "0607": { name: "Mafer", emoji: "👩", color: "#f7a87a", descKey: "descMafer" }
+      "1108": { name: "Isaac", emoji: "👨", color: "#7aa2f7", defaultAvatar: "https://i.postimg.cc/7Y9xXjKq/default-avatar-man.png" },
+      "0607": { name: "Mafer", emoji: "👩", color: "#f7a87a", defaultAvatar: "https://i.postimg.cc/8cC5vXvK/default-avatar-woman.png" }
     };
     
     let currentUser = null;
+    let userProfiles = {}; // Almacena las fotos de perfil de cada usuario
     let attempts = 3;
     let albums = [];
     let currentAlbumId = null;
     let editingAlbumId = null;
     let unsubscribeAlbums = null;
     let currentCommentPhotoIndex = null;
-    let slideshowInterval = null;
-    let currentSlideshowPhotos = [];
-    let slideshowIndex = 0;
+    let currentGalleryPhotos = [];
+    let currentGalleryIndex = 0;
+    let galleryInterval = null;
+    let galleryActive = false;
     
     const START_DATE = new Date("2026-01-26");
     let viewCount = parseInt(localStorage.getItem('viewCount') || '0');
@@ -471,19 +514,79 @@
       document.getElementById('daysCounter').innerHTML = `💕 ${diffDays} días juntos 💕`;
     }
     
+    // ==================== FOTOS DE PERFIL EN FIRESTORE ====================
+    async function loadUserProfiles() {
+      const doc = await db.collection('settings').doc('userProfiles').get();
+      if (doc.exists) {
+        userProfiles = doc.data();
+      } else {
+        userProfiles = {
+          Isaac: USERS["1108"].defaultAvatar,
+          Mafer: USERS["0607"].defaultAvatar
+        };
+        await db.collection('settings').doc('userProfiles').set(userProfiles);
+      }
+      updateUserBadge();
+    }
+    
+    async function saveUserProfilePhoto(userName, photoUrl) {
+      userProfiles[userName] = photoUrl;
+      await db.collection('settings').doc('userProfiles').set(userProfiles);
+      updateUserBadge();
+      // Actualizar vistas actuales
+      if (currentAlbumId && document.getElementById('albumDetailModal').classList.contains('flex')) {
+        const album = albums.find(a => a.id === currentAlbumId);
+        if (album) {
+          renderDualDescriptions(album);
+          renderPhotos(album.photos || [], album.comments || []);
+        }
+      }
+      showToast('Foto de perfil actualizada ✨');
+    }
+    
+    function getUserAvatar(userName) {
+      return userProfiles[userName] || (userName === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar);
+    }
+    
+    function updateUserBadge() {
+      const badge = document.getElementById('userBadge');
+      if (badge && currentUser) {
+        const avatarUrl = getUserAvatar(currentUser.name);
+        badge.innerHTML = `
+          <img src="${avatarUrl}" class="user-avatar-small" onerror="this.src='${currentUser.name === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar}'">
+          <span class="user-name">${currentUser.name}</span>
+        `;
+      }
+    }
+    
+    function openProfileModal() {
+      document.getElementById('currentAvatarPreview').src = getUserAvatar(currentUser.name);
+      document.getElementById('profileUserName').innerText = currentUser.name;
+      document.getElementById('profilePhotoUrl').value = '';
+      document.getElementById('profileModal').classList.remove('hidden');
+      document.getElementById('profileModal').classList.add('flex');
+    }
+    
+    async function saveProfilePhoto() {
+      const url = document.getElementById('profilePhotoUrl').value.trim();
+      if (!url) { showToast('Ingresa un enlace de imagen válido', true); return; }
+      await saveUserProfilePhoto(currentUser.name, url);
+      hideModal('profileModal');
+    }
+    
     // ==================== SISTEMA DE LOGIN ====================
     function checkPin() {
       const input = document.getElementById('pinInput').value;
       if (USERS[input]) {
         currentUser = USERS[input];
-        document.getElementById('userBadge').innerHTML = `${currentUser.emoji} ${currentUser.name}`;
         viewCount++;
         localStorage.setItem('viewCount', viewCount);
         document.getElementById('viewCountStat').innerText = viewCount;
         document.getElementById('loginScreen').style.opacity = '0';
-        setTimeout(() => {
+        setTimeout(async () => {
           document.getElementById('loginScreen').classList.add('hidden');
           document.getElementById('mainContent').classList.remove('hidden');
+          await loadUserProfiles();
           generateStars();
           startRealtimeSync();
           updateDaysCounter();
@@ -548,10 +651,15 @@
             <div class="comments-section">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-xs text-stone-400">💬 ${photoComments.length} comentarios</span>
-                <button onclick="event.stopPropagation(); openCommentModal(${idx})" class="text-xs text-amber-500/70 hover:text-amber-400">➕ comentar</button>
+                <button onclick="event.stopPropagation(); openCommentModal(${idx})" class="text-xs text-amber-500/70 hover:text-amber-400">➕ Comentar</button>
               </div>
               <div id="comments-${idx}" class="comments-list max-h-32 overflow-y-auto">
-                ${photoComments.map(c => `<div class="comment-item ${c.user === 'Isaac' ? 'comment-isaac' : 'comment-mafer'}"><span class="comment-author">${c.user === 'Isaac' ? '👨 Isaac' : '👩 Mafer'}:</span>${escapeHtml(c.text)}</div>`).join('')}
+                ${photoComments.map(c => `
+                  <div class="comment-item ${c.user === 'Isaac' ? 'comment-isaac' : 'comment-mafer'}">
+                    <img src="${getUserAvatar(c.user)}" class="comment-avatar" onerror="this.src='${c.user === 'Isaac' ? USERS["1108"].defaultAvatar : USERS["0607"].defaultAvatar}'">
+                    <span><span class="comment-author">${c.user === 'Isaac' ? '👨 Isaac' : '👩 Mafer'}:</span>${escapeHtml(c.text)}</span>
+                  </div>
+                `).join('')}
               </div>
             </div>
           </div>
@@ -567,8 +675,20 @@
       container.innerHTML = '';
       if (album.descIsaac || album.descMafer) {
         container.innerHTML = `
-          <div class="desc-isaac"><div class="desc-author">👨 Isaac dice:</div><p class="text-sm">${escapeHtml(album.descIsaac || '✨')}</p></div>
-          <div class="desc-mafer mt-3"><div class="desc-author">👩 Mafer dice:</div><p class="text-sm">${escapeHtml(album.descMafer || '✨')}</p></div>
+          <div class="desc-isaac">
+            <img src="${getUserAvatar('Isaac')}" class="desc-avatar" onerror="this.src='${USERS["1108"].defaultAvatar}'">
+            <div class="desc-content">
+              <div class="desc-author">👨 Isaac dice:</div>
+              <p class="text-sm">${escapeHtml(album.descIsaac || '✨')}</p>
+            </div>
+          </div>
+          <div class="desc-mafer mt-3">
+            <img src="${getUserAvatar('Mafer')}" class="desc-avatar" onerror="this.src='${USERS["0607"].defaultAvatar}'">
+            <div class="desc-content">
+              <div class="desc-author">👩 Mafer dice:</div>
+              <p class="text-sm">${escapeHtml(album.descMafer || '✨')}</p>
+            </div>
+          </div>
         `;
       } else {
         container.innerHTML = `<p class="text-stone-400 text-sm italic text-center">💖 Deja un mensaje especial 💖</p>`;
@@ -587,13 +707,11 @@
       document.getElementById('albumDetailModal').classList.add('flex');
     }
     
-    // ==================== SLIDESHOW EN ÁLBUM ====================
+    // ==================== SLIDESHOW ====================
     function startAlbumSlideshow() {
       const album = albums.find(a => a.id === currentAlbumId);
       if (!album?.photos?.length) { showToast('No hay fotos para mostrar', true); return; }
-      currentSlideshowPhotos = album.photos;
-      slideshowIndex = 0;
-      openFullscreenGallery(currentSlideshowPhotos, 0);
+      openFullscreenGallery(album.photos, 0);
     }
     
     // ==================== COMENTARIOS ====================
@@ -672,9 +790,6 @@
     }
     
     // ==================== GALERÍA FULLSCREEN ====================
-    let galleryInterval = null;
-    let galleryActive = false;
-    
     function openFullscreenGallery(photos, startIndex) {
       if (galleryInterval) clearInterval(galleryInterval);
       currentGalleryPhotos = photos;
@@ -792,21 +907,6 @@
       showConfirmDialog('¿Eliminar este álbum completo?', async () => { await db.collection('albums').doc(currentAlbumId).delete(); hideModal('albumDetailModal'); });
     }
     
-    async function deletePhotoFromCloud(albumId, photoIndex) {
-      try {
-        const albumRef = db.collection('albums').doc(albumId);
-        const doc = await albumRef.get();
-        if (doc.exists) {
-          const current = doc.data().photos || [];
-          current.splice(photoIndex, 1);
-          await albumRef.update({ photos: current });
-          showToast('Foto eliminada');
-          playClickSound();
-        }
-      } catch (error) { showToast('Error', true); }
-    }
-    
-    function deletePhotoWithConfirm(index) { showConfirmDialog('¿Eliminar esta foto?', async () => { await deletePhotoFromCloud(currentAlbumId, index); }); }
     function showConfirmDialog(msg, onConfirm) {
       const modal = document.createElement('div');
       modal.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[500]';
