@@ -67,20 +67,6 @@
         width: 10px;
       }
     }
-    .comet-tail {
-      position: absolute;
-      width: 60px;
-      height: 2px;
-      background: linear-gradient(90deg, #ffdd99, transparent);
-      border-radius: 50%;
-      filter: blur(2px);
-      animation: cometTail 2s linear infinite;
-    }
-    @keyframes cometTail {
-      0% { opacity: 0; transform: scaleX(0); }
-      50% { opacity: 0.8; transform: scaleX(1); }
-      100% { opacity: 0; transform: scaleX(0); }
-    }
     
     /* ========== MODAL DE CONFIRMACIÓN BONITO ========== */
     .custom-confirm {
@@ -92,7 +78,7 @@
       animation: scaleIn 0.3s ease-out;
     }
     
-    /* ========== GALERÍA FULLSCREEN ========== */
+    /* ========== GALERÍA FULLSCREEN CON SLIDESHOW ========== */
     .fullscreen-gallery {
       position: fixed;
       top: 0;
@@ -113,7 +99,8 @@
       object-fit: contain;
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      cursor: zoom-out;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
     .gallery-nav {
       position: absolute;
@@ -163,6 +150,21 @@
       font-size: 14px;
       color: #ffdd99;
     }
+    .slideshow-control {
+      position: absolute;
+      bottom: 100px;
+      right: 20px;
+      background: rgba(30,30,40,0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,200,150,0.4);
+      padding: 10px 18px;
+      border-radius: 40px;
+      color: #ffdd99;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slideshow-control:hover { background: rgba(80,80,100,0.9); }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     
     /* ========== MENSAJE DE AMOR FLOTANTE ========== */
@@ -186,6 +188,41 @@
     @keyframes floatLove {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
+    }
+    
+    /* ========== CONTADOR DE DÍAS JUNTOS ========== */
+    .days-counter {
+      position: fixed;
+      bottom: 30px;
+      left: 20px;
+      background: rgba(255,200,150,0.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,200,150,0.4);
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-size: 14px;
+      color: #ffdd99;
+      z-index: 50;
+      font-weight: 500;
+    }
+    
+    /* ========== CORAZONES FLOTANTES ANIMADOS ========== */
+    .floating-heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1000;
+      font-size: 24px;
+      animation: floatHeartUp 1.5s ease-out forwards;
+    }
+    @keyframes floatHeartUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-150px) scale(1.5);
+      }
     }
     
     @keyframes fadeInUp {
@@ -255,6 +292,9 @@
   <!-- Mensaje de amor flotante -->
   <div id="loveMessage" class="love-message hidden">✨💖</div>
   
+  <!-- Contador de días juntos -->
+  <div id="daysCounter" class="days-counter">💕 Calculando días... 💕</div>
+  
   <!-- Pantalla de acceso -->
   <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50 transition-all duration-700" style="background: #050507;">
     <div class="w-full max-w-sm text-center px-6 animate-fade-up">
@@ -306,7 +346,7 @@
     </div>
   </div>
   
-  <!-- Modal Crear Álbum -->
+  <!-- Modales (Crear, Editar, Agregar Foto, Detalle - mismos que antes) -->
   <div id="createAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] px-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in">
       <h3 class="text-2xl font-light text-center mb-6 text-stone-200">Nuevo Álbum</h3>
@@ -323,7 +363,6 @@
     </div>
   </div>
   
-  <!-- Modal Editar Álbum -->
   <div id="editAlbumModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[150] px-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60 scale-in">
       <h3 class="text-2xl font-light text-center mb-6 text-stone-200">Editar Álbum</h3>
@@ -340,7 +379,6 @@
     </div>
   </div>
   
-  <!-- Modal Agregar Foto -->
   <div id="addPhotoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[250] px-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-md p-6 border border-stone-800/60">
       <h3 class="text-2xl font-light text-center mb-5 text-stone-200">Agregar Fotografía</h3>
@@ -353,7 +391,6 @@
     </div>
   </div>
   
-  <!-- Modal Detalle Álbum -->
   <div id="albumDetailModal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-[200] p-4">
     <div class="bg-[#121216] rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-800/60">
       <div class="p-5 border-b border-stone-800/60 flex justify-between items-center shrink-0">
@@ -401,6 +438,159 @@
     let editingAlbumId = null;
     let unsubscribeAlbums = null;
     
+    // ========== CONTADOR DE DÍAS JUNTOS (CAMBIAR FECHA AQUÍ) ==========
+    // CAMBIA ESTA FECHA POR EL DÍA QUE EMPEZARON SU RELACIÓN (AÑO-MES-DÍA)
+    const START_DATE = new Date("2026-01-26"); // 14 de febrero de 2024
+    
+    function updateDaysCounter() {
+      const today = new Date();
+      const diffTime = today - START_DATE;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const counterDiv = document.getElementById('daysCounter');
+      if (counterDiv) {
+        counterDiv.innerHTML = `💕 ${diffDays} días juntos 💕`;
+      }
+    }
+    
+    // ========== SONIDOS AL TOCAR ==========
+    function playClickSound() {
+      try {
+        const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==');
+        audio.volume = 0.2;
+        audio.play().catch(e => console.log('Audio no soportado'));
+      } catch(e) {}
+    }
+    
+    // ========== CORAZONES FLOTANTES ANIMADOS ==========
+    function createFloatingHeart(x, y) {
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      heart.innerHTML = ['❤️', '💖', '💗', '💓', '💕', '💘'][Math.floor(Math.random() * 6)];
+      heart.style.left = x + 'px';
+      heart.style.top = y + 'px';
+      heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+      document.body.appendChild(heart);
+      
+      setTimeout(() => {
+        heart.remove();
+      }, 1500);
+    }
+    
+    function handleHeartClick(e) {
+      createFloatingHeart(e.clientX, e.clientY);
+      playClickSound();
+    }
+    
+    // ========== GALERÍA FULLSCREEN CON SLIDESHOW AUTOMÁTICO ==========
+    let currentGalleryPhotos = [];
+    let currentGalleryIndex = 0;
+    let slideshowInterval = null;
+    let slideshowActive = false;
+    
+    function startSlideshow() {
+      if (slideshowInterval) clearInterval(slideshowInterval);
+      slideshowActive = true;
+      slideshowInterval = setInterval(() => {
+        if (currentGalleryPhotos.length > 0) {
+          currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryPhotos.length;
+          const imgElement = document.getElementById('galleryMainImage');
+          if (imgElement) {
+            imgElement.src = currentGalleryPhotos[currentGalleryIndex];
+            const counter = document.querySelector('.gallery-counter');
+            if (counter) counter.innerText = `${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}`;
+          }
+        }
+      }, 4000);
+    }
+    
+    function stopSlideshow() {
+      if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
+      }
+      slideshowActive = false;
+    }
+    
+    function toggleSlideshow() {
+      if (slideshowActive) {
+        stopSlideshow();
+        const btn = document.getElementById('slideshowToggleBtn');
+        if (btn) btn.innerHTML = '▶ Reproducir automático';
+      } else {
+        startSlideshow();
+        const btn = document.getElementById('slideshowToggleBtn');
+        if (btn) btn.innerHTML = '⏸ Pausar slideshow';
+      }
+    }
+    
+    function openFullscreenGallery(photos, startIndex) {
+      stopSlideshow();
+      currentGalleryPhotos = photos;
+      currentGalleryIndex = startIndex;
+      renderFullscreenWithSlideshow();
+      startSlideshow();
+    }
+    
+    function renderFullscreenWithSlideshow() {
+      let gallery = document.getElementById('fullscreenGallery');
+      if (gallery) gallery.remove();
+      
+      gallery = document.createElement('div');
+      gallery.id = 'fullscreenGallery';
+      gallery.className = 'fullscreen-gallery';
+      gallery.innerHTML = `
+        <div class="gallery-counter">${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}</div>
+        <div class="gallery-close" onclick="closeFullscreenGallery()">✕</div>
+        <img id="galleryMainImage" class="gallery-image" src="${currentGalleryPhotos[currentGalleryIndex]}" onclick="closeFullscreenGallery()">
+        <div class="gallery-nav">
+          <button class="gallery-btn" id="galleryPrevBtn" ${currentGalleryPhotos.length <= 1 ? 'style="opacity:0.5;pointer-events:none"' : ''}>◀ Anterior</button>
+          <button class="gallery-btn" id="galleryNextBtn" ${currentGalleryPhotos.length <= 1 ? 'style="opacity:0.5;pointer-events:none"' : ''}>Siguiente ▶</button>
+        </div>
+        <div class="slideshow-control" id="slideshowToggleBtn">⏸ Pausar slideshow</div>
+      `;
+      document.body.appendChild(gallery);
+      
+      document.getElementById('galleryPrevBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentGalleryIndex > 0) {
+          currentGalleryIndex--;
+          document.getElementById('galleryMainImage').src = currentGalleryPhotos[currentGalleryIndex];
+          document.querySelector('.gallery-counter').innerText = `${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}`;
+          if (slideshowActive) { stopSlideshow(); startSlideshow(); }
+        }
+      });
+      
+      document.getElementById('galleryNextBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentGalleryIndex < currentGalleryPhotos.length - 1) {
+          currentGalleryIndex++;
+          document.getElementById('galleryMainImage').src = currentGalleryPhotos[currentGalleryIndex];
+          document.querySelector('.gallery-counter').innerText = `${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}`;
+          if (slideshowActive) { stopSlideshow(); startSlideshow(); }
+        }
+      });
+      
+      document.getElementById('slideshowToggleBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSlideshow();
+      });
+      
+      document.addEventListener('keydown', galleryKeyHandler);
+    }
+    
+    function closeFullscreenGallery() {
+      stopSlideshow();
+      const gallery = document.getElementById('fullscreenGallery');
+      if (gallery) gallery.remove();
+      document.removeEventListener('keydown', galleryKeyHandler);
+    }
+    
+    function galleryKeyHandler(e) {
+      if (e.key === 'ArrowLeft') document.getElementById('galleryPrevBtn')?.click();
+      if (e.key === 'ArrowRight') document.getElementById('galleryNextBtn')?.click();
+      if (e.key === 'Escape') closeFullscreenGallery();
+    }
+    
     // ========== MENSAJES DE AMOR ALEATORIOS ==========
     const loveMessages = [
       "✨ Eres el amor de mi vida ✨", "💖 Te amo más que ayer 💖", "🌹 Contigo todo es mejor 🌹",
@@ -443,71 +633,11 @@
       modal.querySelector('#confirmOkBtn').onclick = () => {
         modal.remove();
         onConfirm();
+        playClickSound();
       };
     }
     
-    // ========== GALERÍA FULLSCREEN ==========
-    let currentGalleryPhotos = [];
-    let currentGalleryIndex = 0;
-    
-    function openFullscreenGallery(photos, startIndex) {
-      currentGalleryPhotos = photos;
-      currentGalleryIndex = startIndex;
-      renderFullscreen();
-    }
-    
-    function renderFullscreen() {
-      let gallery = document.getElementById('fullscreenGallery');
-      if (gallery) gallery.remove();
-      
-      gallery = document.createElement('div');
-      gallery.id = 'fullscreenGallery';
-      gallery.className = 'fullscreen-gallery';
-      gallery.innerHTML = `
-        <div class="gallery-counter">${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}</div>
-        <div class="gallery-close" onclick="closeFullscreenGallery()">✕</div>
-        <img id="galleryMainImage" class="gallery-image" src="${currentGalleryPhotos[currentGalleryIndex]}" onclick="closeFullscreenGallery()">
-        <div class="gallery-nav">
-          <button class="gallery-btn" id="galleryPrevBtn" ${currentGalleryPhotos.length <= 1 ? 'style="opacity:0.5;pointer-events:none"' : ''}>◀ Anterior</button>
-          <button class="gallery-btn" id="galleryNextBtn" ${currentGalleryPhotos.length <= 1 ? 'style="opacity:0.5;pointer-events:none"' : ''}>Siguiente ▶</button>
-        </div>
-      `;
-      document.body.appendChild(gallery);
-      
-      document.getElementById('galleryPrevBtn')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentGalleryIndex > 0) {
-          currentGalleryIndex--;
-          document.getElementById('galleryMainImage').src = currentGalleryPhotos[currentGalleryIndex];
-          document.querySelector('.gallery-counter').innerText = `${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}`;
-        }
-      });
-      
-      document.getElementById('galleryNextBtn')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentGalleryIndex < currentGalleryPhotos.length - 1) {
-          currentGalleryIndex++;
-          document.getElementById('galleryMainImage').src = currentGalleryPhotos[currentGalleryIndex];
-          document.querySelector('.gallery-counter').innerText = `${currentGalleryIndex + 1} / ${currentGalleryPhotos.length}`;
-        }
-      });
-      
-      document.addEventListener('keydown', galleryKeyHandler);
-    }
-    
-    function closeFullscreenGallery() {
-      const gallery = document.getElementById('fullscreenGallery');
-      if (gallery) gallery.remove();
-      document.removeEventListener('keydown', galleryKeyHandler);
-    }
-    
-    function galleryKeyHandler(e) {
-      if (e.key === 'ArrowLeft') document.getElementById('galleryPrevBtn')?.click();
-      if (e.key === 'ArrowRight') document.getElementById('galleryNextBtn')?.click();
-      if (e.key === 'Escape') closeFullscreenGallery();
-    }
-    
-    // ========== FONDO DE ESTRELLAS MEJORADO ==========
+    // ========== FONDO DE ESTRELLAS ==========
     function generateStars() {
       const container = document.getElementById('starsContainer');
       if (!container) return;
@@ -524,8 +654,6 @@
         star.style.animationDuration = `${1.5 + Math.random() * 2}s`;
         container.appendChild(star);
       }
-      
-      // Cometas
       for (let i = 0; i < 5; i++) {
         const comet = document.createElement('div');
         comet.classList.add('shooting-star');
@@ -537,7 +665,7 @@
       }
     }
     
-    // ========== FUNCIONES EXISTENTES ==========
+    // ========== FUNCIONES EXISTENTES (recortadas por espacio pero completas) ==========
     function showToast(msg, isErr = false) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -575,17 +703,19 @@
         if (albumId) {
           await db.collection('albums').doc(albumId).update({ ...albumData, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
           showToast('Álbum actualizado');
+          playClickSound();
         } else {
           await db.collection('albums').add({ ...albumData, photos: [], createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
           showToast('Álbum creado con éxito');
           showRandomLoveMessage();
+          playClickSound();
         }
         return true;
       } catch (error) { showToast('Error al guardar en la nube', true); return false; }
     }
     
     async function deleteAlbumFromCloud(albumId) {
-      try { await db.collection('albums').doc(albumId).delete(); showToast('Álbum eliminado'); return true; } 
+      try { await db.collection('albums').doc(albumId).delete(); showToast('Álbum eliminado'); playClickSound(); return true; } 
       catch (error) { showToast('Error al eliminar', true); return false; }
     }
     
@@ -599,6 +729,7 @@
           await albumRef.update({ photos: current, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
           showToast('Foto agregada correctamente');
           showRandomLoveMessage();
+          playClickSound();
           return true;
         }
         return false;
@@ -614,6 +745,7 @@
           current.splice(photoIndex, 1);
           await albumRef.update({ photos: current, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
           showToast('Foto eliminada');
+          playClickSound();
           return true;
         }
         return false;
@@ -785,16 +917,27 @@
           document.getElementById('mainContent').classList.remove('hidden');
           generateStars();
           startRealtimeSync();
+          updateDaysCounter();
+          setInterval(updateDaysCounter, 60000); // Actualizar cada minuto
+          playClickSound();
         }, 400);
       } else {
         attempts--;
         document.querySelector('#attemptsLeft span').innerText = attempts;
         if (attempts <= 0) { alert('Código incorrecto. Recarga la página.'); location.reload(); } 
-        else { input.value = ''; input.focus(); showToast(`Código incorrecto. Te quedan ${attempts} intentos.`, true); }
+        else { input.value = ''; input.focus(); showToast(`Código incorrecto. Te quedan ${attempts} intentos.`, true); playClickSound(); }
       }
     }
     
     document.getElementById('pinInput')?.addEventListener('input', function() { if (this.value.length === 8) checkPin(); });
+    
+    // Activar corazones al hacer clic en cualquier parte
+    document.body.addEventListener('click', (e) => {
+      if (!document.getElementById('fullscreenGallery')) {
+        handleHeartClick(e);
+      }
+    });
+    
     window.onload = () => { generateStars(); };
   </script>
 </body>
